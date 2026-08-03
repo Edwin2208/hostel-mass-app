@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HostelMass – Hostel Referral & Mass Reading App</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- Animated Particle Canvas Background -->
+  <canvas id="bgCanvas"></canvas>
+
+  <!-- ===== SPLASH SCREEN ===== -->
+  <div class="splash" id="splash">
+    <div class="splash-inner">
+      <div class="splash-logo">
+        <div class="splash-icon">🏠</div>
+        <div class="splash-ripple"></div>
+        <div class="splash-ripple r2"></div>
+        <div class="splash-ripple r3"></div>
+      </div>
+      <h1 class="splash-title">HostelMass</h1>
+      <p class="splash-sub">Hostel Referral & Mass Reading Platform</p>
+      <div class="splash-loader">
+        <div class="loader-bar"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <div class="logo-icon-wrap">🏠</div>
+        <span class="logo-text">HostelMass</span>
+      </div>
+      <button class="sidebar-close" id="sidebarClose" aria-label="Close menu">✕</button>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a href="#" class="nav-item active" data-page="dashboard">
+        <span class="nav-icon">📊</span>
+        <span class="nav-label">Dashboard</span>
+        <span class="nav-indicator"></span>
+      </a>
+      <a href="#" class="nav-item" data-page="hostels">
+        <span class="nav-icon">🏨</span>
+        <span class="nav-label">Hostel Listings</span>
+        <span class="nav-indicator"></span>
+      </a>
+      <a href="#" class="nav-item" data-page="referrals">
+        <span class="nav-icon">🔗</span>
+        <span class="nav-label">My Referrals</span>
+        <span class="nav-indicator"></span>
+      </a>
+      <a href="#" class="nav-item" data-page="massreading">
+        <span class="nav-icon">📖</span>
+        <span class="nav-label">Mass Reading</span>
+        <span class="nav-indicator"></span>
+      </a>
+      <a href="#" class="nav-item" data-page="register">
+        <span class="nav-icon">📝</span>
+        <span class="nav-label">Register Student</span>
+        <span class="nav-indicator"></span>
+      </a>
+      <a href="#" class="nav-item" data-page="notifications">
+        <span class="nav-icon">🔔</span>
+        <span class="nav-label">Notifications</span>
+        <span class="badge" id="notifBadge">3</span>
+        <span class="nav-indicator"></span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-card">
+        <div class="user-avatar">👤</div>
+        <div class="user-info">
+          <span class="user-name">Admin User</span>
+          <span class="user-role">● Online</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="overlay" id="overlay"></div>
+
+  <!-- ===== MAIN CONTENT ===== -->
+  <main class="main-content">
+    <!-- Top Bar -->
+    <header class="topbar">
+      <button class="menu-btn" id="menuBtn" aria-label="Open menu">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="topbar-title" id="pageTitle">Dashboard</div>
+      <div class="topbar-actions">
+        <button class="icon-btn" id="themeToggle" title="Toggle Dark Mode">🌙</button>
+        <button class="icon-btn notif-btn" id="notifBtn">
+          🔔<span class="notif-dot" id="notifDot"></span>
+        </button>
+      </div>
+    </header>
+
+    <!-- ===== DASHBOARD PAGE ===== -->
+    <section class="page active" id="page-dashboard">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title animate-in">Welcome back! 👋</h1>
+          <p class="subtitle animate-in delay-1">Here's what's happening today — <span id="todayDate"></span></p>
+        </div>
+      </div>
+
+      <!-- Animated Stats Grid -->
+      <div class="stats-grid">
+        <div class="stat-card card-blue animate-up delay-1">
+          <div class="stat-bg-icon">🏨</div>
+          <div class="stat-content">
+            <div class="stat-icon-circle blue">🏨</div>
+            <div class="stat-data">
+              <span class="stat-value" id="statHostels" data-target="12">0</span>
+              <span class="stat-label">Total Hostels</span>
+            </div>
+          </div>
+          <svg class="stat-wave" viewBox="0 0 200 60" preserveAspectRatio="none">
+            <path d="M0,40 C30,20 60,50 90,35 C120,20 150,45 180,30 L200,40 L200,60 L0,60 Z" fill="rgba(255,255,255,0.15)"/>
+          </svg>
+        </div>
+        <div class="stat-card card-green animate-up delay-2">
+          <div class="stat-bg-icon">🔗</div>
+          <div class="stat-content">
+            <div class="stat-icon-circle green">🔗</div>
+            <div class="stat-data">
+              <span class="stat-value" id="statReferrals" data-target="28">0</span>
+              <span class="stat-label">Referrals Made</span>
+            </div>
+          </div>
+          <svg class="stat-wave" viewBox="0 0 200 60" preserveAspectRatio="none">
+            <path d="M0,35 C40,15 70,50 110,30 C140,15 170,45 200,25 L200,60 L0,60 Z" fill="rgba(255,255,255,0.15)"/>
+          </svg>
+        </div>
+        <div class="stat-card card-purple animate-up delay-3">
+          <div class="stat-bg-icon">👥</div>
+          <div class="stat-content">
+            <div class="stat-icon-circle purple">👥</div>
+            <div class="stat-data">
+              <span class="stat-value" id="statStudents" data-target="64">0</span>
+              <span class="stat-label">Students Registered</span>
+            </div>
+          </div>
+          <svg class="stat-wave" viewBox="0 0 200 60" preserveAspectRatio="none">
+            <path d="M0,30 C50,10 80,50 120,25 C150,10 180,40 200,20 L200,60 L0,60 Z" fill="rgba(255,255,255,0.15)"/>
+          </svg>
+        </div>
+        <div class="stat-card card-orange animate-up delay-4">
+          <div class="stat-bg-icon">📖</div>
+          <div class="stat-content">
+            <div class="stat-icon-circle orange">📖</div>
+            <div class="stat-data">
+              <span class="stat-value" id="statReadings" data-target="7">0</span>
+              <span class="stat-label">Day Reading Streak</span>
+            </div>
+          </div>
+          <svg class="stat-wave" viewBox="0 0 200 60" preserveAspectRatio="none">
+            <path d="M0,45 C35,25 65,55 100,35 C130,20 165,50 200,30 L200,60 L0,60 Z" fill="rgba(255,255,255,0.15)"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Animated Chart + Today's Reading Side by Side -->
+      <div class="dashboard-row">
+        <!-- Bar Chart -->
+        <div class="card chart-card animate-up delay-2">
+          <div class="card-header">
+            <h2>📈 Referral Activity</h2>
+            <span class="card-badge">Last 7 Days</span>
+          </div>
+          <div class="chart-container">
+            <canvas id="referralChart" width="400" height="180"></canvas>
+          </div>
+        </div>
+
+        <!-- Today's Mass Reading -->
+        <div class="card reading-card animate-up delay-3">
+          <div class="card-header">
+            <h2>📖 Today's Mass Reading</h2>
+            <span class="card-badge" id="todayMassDate"></span>
+          </div>
+          <div class="reading-scroll">
+            <div class="reading-block animate-in">
+              <div class="reading-tag-pill first">First Reading</div>
+              <p id="dashFirstReading" class="reading-text">Loading...</p>
+            </div>
+            <div class="reading-divider">✦ ✦ ✦</div>
+            <div class="reading-block animate-in delay-1">
+              <div class="reading-tag-pill psalm">Psalm</div>
+              <p id="dashPsalm" class="reading-text">Loading...</p>
+            </div>
+            <div class="reading-divider">✦ ✦ ✦</div>
+            <div class="reading-block animate-in delay-2">
+              <div class="reading-tag-pill gospel">Gospel</div>
+              <p id="dashGospel" class="reading-text">Loading...</p>
+            </div>
+          </div>
+          <button class="btn btn-outline glow-btn" onclick="navigate('massreading')">View Full Reading →</button>
+        </div>
+      </div>
+
+      <!-- Recent Hostels -->
+      <div class="card animate-up delay-2">
+        <div class="card-header">
+          <h2>🏨 Recently Added Hostels</h2>
+          <button class="btn btn-sm btn-primary" onclick="navigate('hostels')">View All</button>
+        </div>
+        <div class="hostel-mini-list" id="dashHostelList"></div>
+      </div>
+
+      <!-- Recent Referrals -->
+      <div class="card animate-up delay-3">
+        <div class="card-header">
+          <h2>🔗 Recent Referrals</h2>
+          <button class="btn btn-sm btn-primary" onclick="navigate('referrals')">View All</button>
+        </div>
+        <div id="dashReferralList"></div>
+      </div>
+    </section>
+
+    <!-- ===== HOSTEL LISTINGS PAGE ===== -->
+    <section class="page" id="page-hostels">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title animate-in">🏨 Hostel Listings</h1>
+          <p class="subtitle animate-in delay-1">Browse and manage available hostels</p>
+        </div>
+        <button class="btn btn-primary pulse-btn" id="addHostelBtn">+ Add Hostel</button>
+      </div>
+
+      <div class="filter-bar animate-up">
+        <input type="text" class="search-input" id="hostelSearch" placeholder="🔍 Search by name or location..." />
+        <select class="filter-select" id="hostelFilter">
+          <option value="all">All Types</option>
+          <option value="male">Male</option>
+          <option value="female">Female</option>
+          <option value="mixed">Mixed</option>
+        </select>
+        <select class="filter-select" id="priceFilter">
+          <option value="all">All Prices</option>
+          <option value="low">Under ₦50,000</option>
+          <option value="mid">₦50,000 – ₦100,000</option>
+          <option value="high">Over ₦100,000</option>
+        </select>
+      </div>
+
+      <div class="hostel-grid" id="hostelGrid"></div>
+    </section>
+
+    <!-- ===== REFERRALS PAGE ===== -->
+    <section class="page" id="page-referrals">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title animate-in">🔗 My Referrals</h1>
+          <p class="subtitle animate-in delay-1">Track all your student hostel referrals</p>
+        </div>
+        <button class="btn btn-primary pulse-btn" id="addReferralBtn">+ New Referral</button>
+      </div>
+
+      <div class="referral-stats animate-up">
+        <div class="ref-stat card-blue">
+          <span class="ref-icon">📋</span>
+          <span class="ref-stat-value" id="refTotal">0</span>
+          <span class="ref-stat-label">Total</span>
+        </div>
+        <div class="ref-stat card-green">
+          <span class="ref-icon">✅</span>
+          <span class="ref-stat-value" id="refSuccess">0</span>
+          <span class="ref-stat-label">Successful</span>
+        </div>
+        <div class="ref-stat card-orange">
+          <span class="ref-icon">⏳</span>
+          <span class="ref-stat-value" id="refPending">0</span>
+          <span class="ref-stat-label">Pending</span>
+        </div>
+        <div class="ref-stat card-purple">
+          <span class="ref-icon">❌</span>
+          <span class="ref-stat-value" id="refFailed">0</span>
+          <span class="ref-stat-label">Failed</span>
+        </div>
+      </div>
+
+      <!-- Donut Chart -->
+      <div class="card animate-up delay-2" style="margin-bottom:1.5rem">
+        <div class="card-header"><h2>📊 Referral Breakdown</h2></div>
+        <div class="donut-wrap">
+          <canvas id="donutChart" width="220" height="220"></canvas>
+          <div class="donut-legend" id="donutLegend"></div>
+        </div>
+      </div>
+
+      <div class="card animate-up delay-2">
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr><th>#</th><th>Student Name</th><th>Hostel</th><th>Date</th><th>Status</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="referralTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== MASS READING PAGE ===== -->
+    <section class="page" id="page-massreading">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title animate-in">📖 Mass Reading</h1>
+          <p class="subtitle animate-in delay-1">Daily Catholic Liturgical Readings</p>
+        </div>
+      </div>
+
+      <!-- Date Navigation -->
+      <div class="card date-nav-card animate-up">
+        <button class="btn btn-outline" id="prevDay">← Prev</button>
+        <div class="date-display">
+          <input type="date" id="readingDatePicker" class="date-picker" />
+        </div>
+        <button class="btn btn-outline" id="nextDay">Next →</button>
+      </div>
+
+      <!-- Reading Content with Animated Pages -->
+      <div class="reading-book" id="readingContent"></div>
+
+      <!-- Tracker Grid -->
+      <div class="card animate-up delay-2">
+        <div class="card-header">
+          <h2>🔥 Reading Streak Tracker</h2>
+          <span class="card-badge streak-badge" id="trackerStreak">🔥 0 day streak</span>
+        </div>
+        <div class="tracker-grid" id="trackerGrid"></div>
+        <div class="tracker-legend">
+          <span class="legend-item read">✓ Read</span>
+          <span class="legend-item unread">○ Unread</span>
+          <span class="legend-item today">● Today</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== REGISTER STUDENT PAGE ===== -->
+    <section class="page" id="page-register">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title animate-in">📝 Register Student</h1>
+          <p class="subtitle animate-in delay-1">Add a new student to the platform</p>
+        </div>
+      </div>
+
+      <div class="form-card animate-up">
+        <!-- Animated Progress Steps -->
+        <div class="form-steps">
+          <div class="step active" data-step="1"><span class="step-num">1</span><span class="step-label">Personal</span></div>
+          <div class="step-line"></div>
+          <div class="step" data-step="2"><span class="step-num">2</span><span class="step-label">Academic</span></div>
+          <div class="step-line"></div>
+          <div class="step" data-step="3"><span class="step-num">3</span><span class="step-label">Hostel</span></div>
+        </div>
+
+        <form id="studentForm" novalidate>
+          <div class="form-grid">
+            <div class="form-group float-label">
+              <input type="text" id="firstName" placeholder=" " required />
+              <label for="firstName">First Name *</label>
+              <span class="field-error" id="firstNameError"></span>
+            </div>
+            <div class="form-group float-label">
+              <input type="text" id="lastName" placeholder=" " required />
+              <label for="lastName">Last Name *</label>
+              <span class="field-error" id="lastNameError"></span>
+            </div>
+            <div class="form-group float-label">
+              <input type="email" id="email" placeholder=" " required />
+              <label for="email">Email Address *</label>
+              <span class="field-error" id="emailError"></span>
+            </div>
+            <div class="form-group float-label">
+              <input type="tel" id="phone" placeholder=" " required />
+              <label for="phone">Phone Number *</label>
+              <span class="field-error" id="phoneError"></span>
+            </div>
+            <div class="form-group float-label">
+              <input type="text" id="matric" placeholder=" " />
+              <label for="matric">Matric Number</label>
+            </div>
+            <div class="form-group float-label">
+              <input type="text" id="department" placeholder=" " />
+              <label for="department">Department</label>
+            </div>
+            <div class="form-group">
+              <label for="level">Level</label>
+              <select id="level">
+                <option value="">Select Level</option>
+                <option value="100">100 Level</option>
+                <option value="200">200 Level</option>
+                <option value="300">300 Level</option>
+                <option value="400">400 Level</option>
+                <option value="500">500 Level</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="preferredHostel">Preferred Hostel</label>
+              <select id="preferredHostel">
+                <option value="">Select Hostel</option>
+              </select>
+            </div>
+            <div class="form-group full-width float-label">
+              <textarea id="address" placeholder=" " rows="3"></textarea>
+              <label for="address">Home Address</label>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="button" class="btn btn-outline" onclick="clearForm()">Clear</button>
+            <button type="submit" class="btn btn-primary">Register Student 🎓</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Students Table -->
+      <div class="card animate-up delay-2" style="margin-top:2rem">
+        <div class="card-header">
+          <h2>👥 Registered Students (<span id="studentCount">0</span>)</h2>
+          <input type="text" class="search-input" id="studentSearch" placeholder="Search..." style="width:180px" />
+        </div>
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr><th>#</th><th>Name</th><th>Email</th><th>Matric</th><th>Dept.</th><th>Level</th><th>Hostel</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="studentTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== NOTIFICATIONS PAGE ===== -->
+    <section class="page" id="page-notifications">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title animate-in">🔔 Notifications</h1>
+          <p class="subtitle animate-in delay-1">Stay up to date with latest activity</p>
+        </div>
+        <button class="btn btn-outline" id="markAllRead">Mark All Read</button>
+      </div>
+      <div class="notif-list" id="notifList"></div>
+    </section>
+  </main>
+
+  <!-- ===== MODALS ===== -->
+
+  <!-- Add Hostel Modal -->
+  <div class="modal-overlay" id="addHostelModal">
+    <div class="modal animate-modal">
+      <div class="modal-header">
+        <h3>🏨 Add New Hostel</h3>
+        <button class="modal-close" data-modal="addHostelModal">✕</button>
+      </div>
+      <form id="hostelForm">
+        <div class="form-group float-label">
+          <input type="text" id="hostelName" placeholder=" " required />
+          <label for="hostelName">Hostel Name *</label>
+        </div>
+        <div class="form-group float-label">
+          <input type="text" id="hostelLocation" placeholder=" " required />
+          <label for="hostelLocation">Location *</label>
+        </div>
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label>Type</label>
+            <select id="hostelType">
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="mixed">Mixed</option>
+            </select>
+          </div>
+          <div class="form-group float-label">
+            <input type="number" id="hostelPrice" placeholder=" " required />
+            <label for="hostelPrice">Price (₦/yr) *</label>
+          </div>
+        </div>
+        <div class="form-grid-2">
+          <div class="form-group float-label">
+            <input type="number" id="hostelRooms" placeholder=" " />
+            <label for="hostelRooms">Total Rooms</label>
+          </div>
+          <div class="form-group float-label">
+            <input type="number" id="hostelVacant" placeholder=" " />
+            <label for="hostelVacant">Vacant Rooms</label>
+          </div>
+        </div>
+        <div class="form-group float-label">
+          <input type="text" id="hostelAmenities" placeholder=" " />
+          <label for="hostelAmenities">Amenities (e.g. WiFi, Water)</label>
+        </div>
+        <div class="form-group float-label">
+          <input type="text" id="hostelContact" placeholder=" " />
+          <label for="hostelContact">Contact</label>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-outline" data-modal-close="addHostelModal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Add Hostel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Add Referral Modal -->
+  <div class="modal-overlay" id="addReferralModal">
+    <div class="modal animate-modal">
+      <div class="modal-header">
+        <h3>🔗 New Referral</h3>
+        <button class="modal-close" data-modal="addReferralModal">✕</button>
+      </div>
+      <form id="referralForm">
+        <div class="form-group float-label">
+          <input type="text" id="refStudentName" placeholder=" " required />
+          <label for="refStudentName">Student Name *</label>
+        </div>
+        <div class="form-group">
+          <label>Hostel *</label>
+          <select id="refHostel" required><option value="">Select Hostel</option></select>
+        </div>
+        <div class="form-group float-label">
+          <input type="text" id="refContact" placeholder=" " />
+          <label for="refContact">Student Contact</label>
+        </div>
+        <div class="form-group float-label">
+          <textarea id="refNotes" rows="3" placeholder=" "></textarea>
+          <label for="refNotes">Notes</label>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-outline" data-modal-close="addReferralModal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Submit Referral</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Hostel Detail Modal -->
+  <div class="modal-overlay" id="hostelDetailModal">
+    <div class="modal modal-lg animate-modal" id="hostelDetailContent"></div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast">
+    <span class="toast-icon" id="toastIcon"></span>
+    <span class="toast-msg" id="toastMsg"></span>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
