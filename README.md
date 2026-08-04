@@ -1,84 +1,103 @@
-# 🏠 HostelMass – Hostel Referral & Mass Reading App
+# Don Bosco Skill Mission Center, Bengaluru
+## Hostel Management Web Application
 
-A fully animated web application for managing hostel referrals and tracking daily Catholic Mass readings. Built with pure HTML, CSS, and JavaScript — no frameworks needed.
+> **DBSM Mariam Manne Hostel** — Refectory Seating & Holy Mass Reading Roster System
+
+---
+
+## 🌐 Live App
+
+**[https://edwin2208.github.io/hostel-mass-app/](https://edwin2208.github.io/hostel-mass-app/)**
+
+---
+
+## 🔑 Default Login Credentials
+
+| Role | Username | Password |
+|------|----------|----------|
+| **Admin** | `admin` | `admin@dbsm2026` |
+| **Trainee** | `trainee001` | `pass1234` |
+
+---
 
 ## ✨ Features
 
-- **Dashboard** – Animated stats, bar chart, today's Mass reading preview
-- **Hostel Listings** – Search, filter, view details, and add new hostels
-- **Referral Tracker** – Submit referrals, track status, donut chart breakdown
-- **Mass Reading** – Daily liturgical readings with 30-day streak tracker
-- **Student Registration** – Floating label form with validation
-- **Notifications** – Real-time notification system with badges
-- **Dark / Light Mode** – Toggle with one click
-- **Animated Particles** – Canvas-based background animation
-- **Splash Screen** – Animated loader on first visit
-- **Local Storage** – All data persists in the browser
+### Admin Module
+- **Trainee Management** — Add/edit/delete trainees, bulk CSV upload, export
+- **Refectory Seating** — Auto-generate seat assignments mixing mother tongues, seat swap, publish
+- **Mass Reading Roster** — Auto-assign daily readers (Catholics compulsory, others voluntary)
+- **Announcements** — Post/pin notices visible to all trainees
+- **Settings** — Cycle frequency (Monthly / 15-Day), IP restriction config
 
-## 🚀 Run Locally
+### Trainee Module
+- **My Seat** — View assigned table + seat number + neighbors
+- **My Readings** — View assigned Bible Reading / Psalm dates
+- **Announcements** — Read all admin posts
+- **Profile** — View personal details
 
-Just open `index.html` in any modern browser. No build step required.
+---
+
+## 🏗️ Project Structure
+
+```
+dbsm-app/           ← Main Next.js application
+├── app/
+│   ├── login/      ← Login page (role-based)
+│   ├── admin/      ← Admin pages
+│   └── trainee/    ← Trainee dashboard
+├── components/
+│   └── layout/     ← Sidebar, Header
+├── lib/
+│   ├── algorithms/ ← Seating & reading algorithms
+│   ├── store.ts    ← localStorage data store
+│   └── types.ts    ← TypeScript types
+└── public/images/  ← Don Bosco brand assets
+```
+
+---
+
+## 🚀 Local Development
 
 ```bash
-# Or use a simple local server (optional)
-npx serve .
+cd dbsm-app
+npm install
+node node_modules/next/dist/bin/next dev
 ```
 
-## 🌐 Deploy to GitHub Pages
+Open [http://localhost:3000](http://localhost:3000)
 
-### Step 1 – Create a GitHub repository
+---
 
-1. Go to [github.com](https://github.com) and create a **new repository**
-2. Name it anything, e.g. `hostel-mass-app`
-3. Set it to **Public**
+## 📦 Tech Stack
 
-### Step 2 – Push this project
+- **Framework:** Next.js 16 (App Router, Static Export)
+- **Styling:** Tailwind CSS v4 + Custom CSS
+- **Animations:** Framer Motion
+- **Icons:** Lucide React
+- **Data:** localStorage (browser-based, no server needed)
+- **Deployment:** GitHub Pages via GitHub Actions
 
-```bash
-git init
-git add .
-git commit -m "Initial commit: HostelMass App"
-git branch -M main
-git remote add origin https://github.com/YOUR_USERNAME/hostel-mass-app.git
-git push -u origin main
-```
+---
 
-### Step 3 – Enable GitHub Pages
+## 🔧 Seating Algorithm
 
-1. Go to your repository → **Settings** → **Pages**
-2. Under **Source**, select **GitHub Actions**
-3. The workflow in `.github/workflows/deploy.yml` will auto-deploy on every push to `main`
+1. Split trainees into Boys/Girls pools
+2. Group each pool by Mother Tongue
+3. Round-robin fill seats across language groups
+4. Validation pass — check adjacent seats for same language
+5. Randomize each cycle for variety
+6. Admin can manually swap seats before publishing
 
-### Step 4 – Access your live app
+---
 
-Your app will be live at:
-```
-https://YOUR_USERNAME.github.io/hostel-mass-app/
-```
+## 📖 Mass Reading Rules
 
-## 📁 Project Structure
+- Catholics: compulsory participants
+- Non-Catholics: only if they opted in (willing_to_read = Yes)
+- Same Domain/Batch for all readers on a given day
+- Sundays/Feasts: 2 Readings + 1 Psalm; Weekdays: 1 Reading + 1 Psalm
+- Fair rotation — everyone gets their turn across the cycle
 
-```
-├── index.html              # Main HTML file
-├── css/
-│   └── style.css           # All styles + animations
-├── js/
-│   ├── data.js             # Seed data & Mass readings
-│   └── app.js              # Application logic + canvas charts
-├── .github/
-│   └── workflows/
-│       └── deploy.yml      # GitHub Pages auto-deploy
-└── README.md
-```
+---
 
-## 🛠️ Technologies
-
-- **HTML5** – Semantic markup
-- **CSS3** – Custom properties, animations, gradients, glassmorphism
-- **JavaScript (ES6+)** – Canvas API, LocalStorage, DOM manipulation
-- **Google Fonts** – Inter + Playfair Display
-- **GitHub Actions** – CI/CD for GitHub Pages deployment
-
-## 📱 Responsive
-
-Works on mobile, tablet, and desktop. Sidebar collapses on small screens.
+*Powered by Don Bosco Tech — Skilling India*
