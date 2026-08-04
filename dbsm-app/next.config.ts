@@ -6,10 +6,9 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: true,
   },
-  // GitHub Pages deploys to /hostel-mass-app/ subpath
-  // Comment out basePath if using a custom domain or Vercel
-  // basePath: "/hostel-mass-app",
-  // assetPrefix: "/hostel-mass-app",
+  // GitHub Pages serves from /hostel-mass-app/ subdirectory
+  basePath: "/hostel-mass-app",
+  assetPrefix: "/hostel-mass-app",
 };
 
 export default nextConfig;

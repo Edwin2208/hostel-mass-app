@@ -41,7 +41,7 @@ export default function SettingsPage() {
     if (!confirm('⚠️ This will RESET ALL DATA (trainees, seats, rosters) to defaults. Are you sure?')) return;
     localStorage.removeItem('dbsm_store');
     localStorage.removeItem('dbsm_session');
-    window.location.href = '/login';
+    router.push('/login');
   };
 
   if (!session) return <div className="min-h-screen flex items-center justify-center"><div className="dbsm-spinner" /></div>;
