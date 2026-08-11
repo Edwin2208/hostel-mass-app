@@ -132,7 +132,7 @@ export default function LoginPage() {
         <div className="absolute bottom-6 left-6 flex items-center gap-3 animate-fade-in">
           <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center overflow-hidden border border-white/20">
             <Image
-              src="/images/don_bosco_tech_skilling_india_logo.jpeg"
+              src="https://github.com/Edwin2208/hostel-mass-app/blob/main/dbsm-app/public/images/don_bosco_tech_skilling_india_logo.jpeg"
               alt="Don Bosco Tech"
               width={40}
               height={40}
