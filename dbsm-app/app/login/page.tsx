@@ -97,7 +97,7 @@ export default function LoginPage() {
           <div className="flex justify-center mb-8 animate-fade-in delay-3">
             <div className="relative w-44 h-56 rounded-2xl overflow-hidden shadow-2xl border-2 border-white/20">
               <Image
-                src="/images/don_bosco_portrait.png"
+                src="/https://github.com/Edwin2208/hostel-mass-app/blob/main/dbsm-app/public/images/don_bosco_portrait.png"
                 alt="Saint John Bosco — Don Bosco"
                 fill
                 className="object-cover object-top"
