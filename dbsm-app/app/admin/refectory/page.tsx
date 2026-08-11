@@ -9,7 +9,7 @@ import { generateSeatingArrangement, validateTable } from '@/lib/algorithms/seat
 import { getCycleDateRange, getCurrentCycleLabel, generateId, formatDate } from '@/lib/utils';
 import {
   RefreshCcw, Eye, EyeOff, CheckCircle, AlertTriangle,
-  Shuffle, Table2, Users, ChevronDown, X, Zap
+  Shuffle, Table2, Users, ChevronDown, X, Zap, Download
 } from 'lucide-react';
 
 const TONGUE_COLORS: Record<string, string> = {
@@ -28,12 +28,9 @@ export default function RefectoryPage() {
   const [generating, setGenerating] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const [showLegend, setShowLegend] = useState(true);
-  const [selectedTab, setSelectedTab] = useState<'boys' | 'girls'>('boys');
   const [swapMode, setSwapMode] = useState(false);
   const [swapSeat1, setSwapSeat1] = useState<{ tableId: string; seatNum: number } | null>(null);
   const [cycles, setCycles] = useState<Cycle[]>([]);
-  const [viewCycleId, setViewCycleId] = useState<string>('current');
-
   const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(null), 3500); };
 
   useEffect(() => {
@@ -134,8 +131,100 @@ export default function RefectoryPage() {
     showToast('✅ Seats swapped!');
   };
 
-  const displayTables = arrangement?.tables.filter(t => t.genderType === (selectedTab === 'boys' ? 'male' : 'female')) || [];
+  const displayTables = arrangement?.tables || [];
   const issues = arrangement?.tables.flatMap(t => validateTable(t).map(v => ({ table: t.name, ...v }))) || [];
+  const totalAssigned = arrangement?.tables.reduce((sum, t) => sum + t.seats.filter(s => s.traineeId).length, 0) || 0;
+  const boysTableCount = arrangement?.tables.filter(t => t.genderType === 'male').length || 0;
+  const girlsTableCount = arrangement?.tables.filter(t => t.genderType === 'female').length || 0;
+  const createSeatingChartSvg = (arr: SeatingArrangement): string => {
+    const cols = 2;
+    const tableWidth = 320;
+    const tableHeight = 220;
+    const gap = 24;
+    const width = cols * tableWidth + (cols + 1) * gap;
+    const rows = Math.ceil(arr.tables.length / cols);
+    const height = rows * tableHeight + (rows + 1) * gap + 120;
+    const palette = { male: '#DBEAFE', female: '#FEE2E2', empty: '#F8FAFC' };
+    const seatSize = 28;
+    const seatGap = 6;
+
+    const tableRects = arr.tables.map((table, idx) => {
+      const col = idx % cols;
+      const row = Math.floor(idx / cols);
+      const x = gap + col * (tableWidth + gap);
+      const y = gap + row * (tableHeight + gap) + 80;
+      const bg = table.genderType === 'male' ? palette.male : palette.female;
+      const seats = table.seats.map((seat, sIdx) => {
+        const sx = x + 18 + (sIdx % 4) * (seatSize + seatGap);
+        const sy = y + 54 + Math.floor(sIdx / 4) * (seatSize + seatGap);
+        const fill = seat.traineeId ? '#1B3F82' : '#CBD5E1';
+        const text = seat.traineeId ? (seat.traineeName?.split(' ')[0].slice(0, 2).toUpperCase() || '') : '';
+        return `
+          <g>
+            <rect x="${sx}" y="${sy}" width="${seatSize}" height="${seatSize}" rx="6" fill="${fill}" />
+            <text x="${sx + seatSize / 2}" y="${sy + seatSize / 2 + 3}" font-size="10" fill="white" text-anchor="middle" font-family="Arial, sans-serif">${text}</text>
+          </g>`;
+      }).join('');
+      return `
+        <g>
+          <rect x="${x}" y="${y}" width="${tableWidth}" height="${tableHeight}" rx="22" fill="${bg}" stroke="#CBD5E1" stroke-width="1" />
+          <text x="${x + 20}" y="${y + 30}" font-size="18" font-weight="700" fill="#0F172A" font-family="Arial, sans-serif">${table.name}</text>
+          <text x="${x + 20}" y="${y + 52}" font-size="12" fill="#475569" font-family="Arial, sans-serif">${table.seats.filter(s => s.traineeId).length}/12 assigned</text>
+          ${seats}
+        </g>`;
+    }).join('');
+
+    return `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
+  <style> .title { font: 700 28px Arial, sans-serif; fill: #0F172A; } .subtitle { font: 500 14px Arial, sans-serif; fill: #475569; }</style>
+  <rect width="100%" height="100%" fill="#F8FAFC" />
+  <text x="${gap}" y="36" class="title">DBSM Refectory Seating Chart</text>
+  <text x="${gap}" y="60" class="subtitle">${arrangement?.tables.length || 0} tables • ${totalAssigned} assigned • ${boysTableCount} boys tables • ${girlsTableCount} girls tables</text>
+  ${tableRects}
+</svg>`;
+  };
+
+  const downloadSeatingChart = (format: 'svg' | 'png') => {
+    if (!arrangement) return;
+    const svg = createSeatingChartSvg(arrangement);
+    if (format === 'svg') {
+      const blob = new Blob([svg], { type: 'image/svg+xml' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `dbsm-seating-chart-${arrangement.cycleId}.svg`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+      return;
+    }
+
+    const svgBlob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' });
+    const url = URL.createObjectURL(svgBlob);
+    const image = new Image();
+    image.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = image.width;
+      canvas.height = image.height;
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.fillStyle = '#F8FAFC';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(image, 0, 0);
+        canvas.toBlob(blob => {
+          if (blob) {
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `dbsm-seating-chart-${arrangement.cycleId}.png`;
+            a.click();
+            URL.revokeObjectURL(a.href);
+          }
+          URL.revokeObjectURL(url);
+        }, 'image/png');
+      } else {
+        URL.revokeObjectURL(url);
+      }
+    };
+    image.src = url;
+  };
 
   if (!session) return <div className="min-h-screen flex items-center justify-center"><div className="dbsm-spinner" /></div>;
 
@@ -206,19 +295,13 @@ export default function RefectoryPage() {
 
         {arrangement && (
           <>
-            {/* Gender Tabs */}
-            <div className="flex rounded-xl border border-slate-200 p-1 bg-slate-50 max-w-xs">
-              {(['boys', 'girls'] as const).map(g => (
-                <button
-                  key={g}
-                  onClick={() => setSelectedTab(g)}
-                  className={`flex-1 py-2 px-4 rounded-lg text-sm font-semibold transition-all ${
-                    selectedTab === g ? 'bg-[#1B3F82] text-white shadow' : 'text-slate-500 hover:text-slate-700'
-                  }`}
-                >
-                  {g === 'boys' ? '♂ Boys Tables' : '♀ Girls Tables'}
-                </button>
-              ))}
+            <div className="dbsm-card p-4 space-y-2">
+              <div className="flex items-center gap-3 text-sm text-slate-600">
+                <span className="font-semibold">All Tables View</span>
+                <span className="text-slate-500">{boysTableCount} boys tables • {girlsTableCount} girls tables</span>
+                <span className="text-slate-500">{totalAssigned}/48 assigned</span>
+              </div>
+              <p className="text-xs text-slate-500">All seating tables are shown together on the same page for quick review.</p>
             </div>
 
             {/* Legend */}

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import AppLayout from '@/components/layout/AppLayout';
 import { getSession, getStore, saveStore } from '@/lib/store';
 import { Trainee, Domain, Gender, Religion, AuthSession } from '@/lib/types';
+import Papa from 'papaparse';
 import { hashPassword, generateId, getDomainLabel, formatDate } from '@/lib/utils';
 import { UserPlus, Search, Filter, Download, Upload, Pencil, Trash2, X, Check, ChevronDown } from 'lucide-react';
 
@@ -34,6 +35,7 @@ export default function TraineesPage() {
   const [toast, setToast] = useState<string | null>(null);
   const [csvPreview, setCsvPreview] = useState<Partial<Trainee>[]>([]);
   const [showCsv, setShowCsv] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   useEffect(() => {
     const s = getSession();
@@ -97,7 +99,19 @@ export default function TraineesPage() {
     store.trainees = store.trainees.filter(t => t.id !== id);
     saveStore(store);
     setTrainees(store.trainees);
+    setSelectedIds(prev => prev.filter(selectedId => selectedId !== id));
     showToast('🗑️ Trainee removed.');
+  };
+
+  const deleteSelected = () => {
+    if (selectedIds.length === 0) return;
+    if (!confirm(`Delete ${selectedIds.length} selected trainee(s)? This cannot be undone.`)) return;
+    const store = getStore();
+    store.trainees = store.trainees.filter(t => !selectedIds.includes(t.id));
+    saveStore(store);
+    setTrainees(store.trainees);
+    setSelectedIds([]);
+    showToast(`🗑️ Deleted ${selectedIds.length} selected trainee(s).`);
   };
 
   const openEdit = (t: Trainee) => {
@@ -112,26 +126,57 @@ export default function TraineesPage() {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
+    const extension = file.name.split('.').pop()?.toLowerCase();
     reader.onload = (ev) => {
       const text = ev.target?.result as string;
-      const lines = text.split('\n').filter(Boolean);
-      const headers = lines[0].split(',').map(h => h.trim().toLowerCase().replace(/\s/g,'_'));
-      const rows = lines.slice(1).map(line => {
-        const vals = line.split(',');
-        const obj: Record<string, string> = {};
-        headers.forEach((h, i) => { obj[h] = (vals[i] || '').trim(); });
-        return {
-          name: obj.name || obj.full_name || '',
-          gender: (obj.gender === 'female' ? 'female' : 'male') as Gender,
-          domain: (DOMAINS.includes(obj.domain as Domain) ? obj.domain : 'CP-01') as Domain,
-          motherTongue: obj.mother_tongue || obj.mothertongue || 'Tamil',
-          religion: obj.religion || 'Catholic',
-          dob: obj.dob || obj.date_of_birth || '',
-          contactNumber: obj.contact || obj.contact_number || '',
-          username: obj.username || '',
-          willingToRead: obj.willing_to_read === 'yes' || obj.willing === 'yes',
-        } as Partial<Trainee>;
-      }).filter(r => r.name);
+      let rows: Partial<Trainee>[] = [];
+
+      if (extension === 'json') {
+        try {
+          const jsonData = JSON.parse(text);
+          if (Array.isArray(jsonData)) {
+            rows = jsonData.map((row: any) => ({
+              name: (row.name || row.full_name || row.fullname || row['Full Name'] || row['full name'] || '').toString().trim(),
+              gender: (row.gender === 'female' ? 'female' : 'male') as Gender,
+              domain: (DOMAINS.includes((row.domain || row.Domain || 'CP-01') as Domain) ? (row.domain || row.Domain) : 'CP-01') as Domain,
+              motherTongue: (row.mother_tongue || row.mothertongue || row['Mother Tongue'] || 'Tamil').toString().trim(),
+              religion: (row.religion || row.Religion || 'Catholic').toString().trim() as Religion,
+              dob: (row.dob || row.date_of_birth || row['DoB'] || '').toString().trim(),
+              contactNumber: (row.contact || row.contact_number || row['Contact'] || '').toString().trim(),
+              username: (row.username || row.user_name || row['Username'] || '').toString().trim(),
+              willingToRead: ['yes', 'true', '1'].includes(((row.willing_to_read || row.willing || row.Willing || '')).toString().toLowerCase()),
+            } as Partial<Trainee>));
+          }
+        } catch (err) {
+          showToast('⚠️ JSON parse failed. Upload a valid JSON array of trainees.');
+          return;
+        }
+      } else {
+        const parsed = Papa.parse<Record<string, string>>(text, {
+          header: true,
+          skipEmptyLines: true,
+        });
+        if (parsed.errors.length > 0) {
+          showToast(`⚠️ ${parsed.errors.length} row parse issue(s) skipped.`);
+        }
+        rows = (parsed.data || []).map(row => ({
+          name: (row.name || row.full_name || row.fullname || row['Full Name'] || row['full name'] || '').trim(),
+          gender: (row.gender === 'female' ? 'female' : 'male') as Gender,
+          domain: (DOMAINS.includes((row.domain || row.Domain || 'CP-01') as Domain) ? (row.domain || row.Domain) : 'CP-01') as Domain,
+          motherTongue: (row.mother_tongue || row.mothertongue || row['Mother Tongue'] || 'Tamil').trim(),
+          religion: (row.religion || row.Religion || 'Catholic').trim() as Religion,
+          dob: (row.dob || row.date_of_birth || row['DoB'] || '').trim(),
+          contactNumber: (row.contact || row.contact_number || row['Contact'] || '').trim(),
+          username: (row.username || row.user_name || row['Username'] || '').trim(),
+          willingToRead: ['yes', 'true', '1'].includes(((row.willing_to_read || row.willing || row.Willing || '')).toString().toLowerCase()),
+        } as Partial<Trainee>));
+      }
+
+      rows = rows.filter(r => r.name && r.username);
+      if (rows.length === 0) {
+        showToast('⚠️ No valid trainee records found in uploaded file.');
+        return;
+      }
       setCsvPreview(rows);
       setShowCsv(true);
     };
@@ -191,9 +236,14 @@ export default function TraineesPage() {
           </div>
           <div className="flex gap-2 flex-wrap">
             <label className="btn-outline text-sm flex items-center gap-2 cursor-pointer">
-              <Upload size={15} /> Bulk Upload (CSV)
-              <input type="file" accept=".csv" onChange={handleCSV} className="hidden" />
+              <Upload size={15} /> Bulk Upload (CSV/TXT/JSON/Any File)
+              <input type="file" accept=".csv,.txt,.json,*/*" onChange={handleCSV} className="hidden" />
             </label>
+            {selectedIds.length > 0 && (
+              <button onClick={deleteSelected} className="btn-danger text-sm flex items-center gap-2">
+                <Trash2 size={15} /> Delete Selected ({selectedIds.length})
+              </button>
+            )}
             <button onClick={exportCSV} className="btn-outline text-sm flex items-center gap-2">
               <Download size={15} /> Export CSV
             </button>
@@ -234,6 +284,13 @@ export default function TraineesPage() {
             <table className="data-table">
               <thead>
                 <tr>
+                  <th className="w-12">
+                    <input
+                      type="checkbox"
+                      checked={filtered.length > 0 && selectedIds.length === filtered.length}
+                      onChange={() => setSelectedIds(filtered.length > 0 && selectedIds.length === filtered.length ? [] : filtered.map(t => t.id))}
+                    />
+                  </th>
                   <th>#</th>
                   <th>Name</th>
                   <th>Gender</th>
@@ -248,6 +305,14 @@ export default function TraineesPage() {
               <tbody>
                 {filtered.map((t, i) => (
                   <tr key={t.id}>
+                    <td>
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.includes(t.id)}
+                        onChange={() => setSelectedIds(prev => prev.includes(t.id) ? prev.filter(id => id !== t.id) : [...prev, t.id])}
+                        className="mt-1"
+                      />
+                    </td>
                     <td className="text-slate-400 text-xs">{i + 1}</td>
                     <td>
                       <div className="flex items-center gap-2">
@@ -287,7 +352,7 @@ export default function TraineesPage() {
                   </tr>
                 ))}
                 {filtered.length === 0 && (
-                  <tr><td colSpan={9} className="text-center py-10 text-slate-400">No trainees found</td></tr>
+                  <tr><td colSpan={10} className="text-center py-10 text-slate-400">No trainees found</td></tr>
                 )}
               </tbody>
             </table>

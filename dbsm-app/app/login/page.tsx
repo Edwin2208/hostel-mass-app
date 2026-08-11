@@ -71,7 +71,7 @@ export default function LoginPage() {
           <div className="flex justify-center mb-6 animate-fade-in">
             <div className="w-32 h-32 rounded-full bg-white/10 backdrop-blur-sm border-2 border-white/30 flex items-center justify-center overflow-hidden shadow-2xl">
               <Image
-                src="/images/don_bosco_skill_mission_center_logo.png"
+                src="/images/dbsm_logo.jpeg"
                 alt="Don Bosco Skill Mission Center Logo"
                 width={128}
                 height={128}
@@ -90,7 +90,7 @@ export default function LoginPage() {
           <p className="text-xl text-blue-200 font-semibold mb-1 animate-fade-in delay-2">Bengaluru</p>
           <div className="w-20 h-0.5 bg-amber-400 mx-auto mb-4 animate-fade-in delay-2" />
           <p className="text-blue-200 text-sm mb-8 animate-fade-in delay-3">
-            DBSM Mariam Manne Hostel<br/>Management System
+            DBSM Hostel MANAGEMENT SYSTEM
           </p>
 
           {/* Don Bosco Portrait */}
@@ -110,7 +110,7 @@ export default function LoginPage() {
           </div>
 
           <p className="text-sm text-blue-300 italic animate-fade-in delay-4">
-            "Education is a matter of the heart."<br/>
+            "Education is a matter of the heart."<br />
             <span className="text-blue-200 not-italic font-semibold">— St. John Bosco</span>
           </p>
 
@@ -159,11 +159,10 @@ export default function LoginPage() {
               <button
                 key={t}
                 onClick={() => { setTab(t); setError(''); setUsername(''); setPassword(''); }}
-                className={`flex-1 py-2 px-3 rounded-lg text-sm font-semibold transition-all ${
-                  tab === t
+                className={`flex-1 py-2 px-3 rounded-lg text-sm font-semibold transition-all ${tab === t
                     ? 'bg-[#1B3F82] text-white shadow-md'
                     : 'text-slate-500 hover:text-slate-700'
-                }`}
+                  }`}
               >
                 {t === 'trainee' ? '🎓 Trainee' : '🛡️ Admin'}
               </button>
@@ -234,7 +233,7 @@ export default function LoginPage() {
           </div>
 
           <p className="text-center text-xs text-slate-400 mt-6">
-            © 2026 Don Bosco Skill Mission Center, Bengaluru<br/>
+            © 2026 Don Bosco Skill Mission Center, Bengaluru<br />
             Powered by Don Bosco Tech — Skilling India
           </p>
         </div>
