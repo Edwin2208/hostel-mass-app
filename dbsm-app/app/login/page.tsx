@@ -71,7 +71,7 @@ export default function LoginPage() {
           <div className="flex justify-center mb-6 animate-fade-in">
             <div className="w-32 h-32 rounded-full bg-white/10 backdrop-blur-sm border-2 border-white/30 flex items-center justify-center overflow-hidden shadow-2xl">
               <Image
-                src="/images/dbsm_logo.jpeg"
+                src="https://github.com/Edwin2208/hostel-mass-app/blob/main/dbsm-app/public/images/don_bosco_skill_mission_center_logo.png"
                 alt="Don Bosco Skill Mission Center Logo"
                 width={128}
                 height={128}
